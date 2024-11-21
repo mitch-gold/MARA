@@ -11,7 +11,7 @@ from langchain_community.vectorstores import Chroma
 from langchain_community.embeddings.openai import OpenAIEmbeddings
 app = Flask(__name__)
 
-OPENAI_API_KEY="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"
+OPENAI_API_KEY=os.environ['OPENAI_API_KEY']
 
 llm = OpenAI(model='gpt-3.5-turbo-instruct',
             temperature=0.7,
