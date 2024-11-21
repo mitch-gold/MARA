@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mitchell's AI Resume Assistant</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      margin: 10;
+      padding: 10;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    .chatbot-container {
+      width: 1000px;
+      max-width: 90%;
+      background: #fff;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chat-display {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      background-color: #f0f0f5;
+    }
+
+    .chat-display .message {
+      margin-bottom: 15px;
+      max-width: 80%;
+      line-height: 1.4;
+    }
+
+    .message.user {
+      text-align: left;               /* Left-align the text inside the bubble */
+      color: #333;
+      background: #e0e0e0;
+      padding: 10px 15px;
+      border-radius: 10px 10px 0 10px;
+      max-width: 60%;                 /* Limit the width to 40% of the container */
+      width: auto;                    /* Width based on the content */
+      float: right;                   /* Float the bubble to the right */
+      margin-left: 10px;              /* Optional: Adds space between messages */
+      clear: both;                    /* Prevent overlap with the other message */
+    }
+
+    .message.bot {
+      text-align: left;               /* Left-align the text inside the bubble */
+      color: #fff;
+      background: #006db5;
+      padding: 10px 15px;
+      border-radius: 10px 10px 10px 0;
+      max-width: 60%;                 /* Limit the width to 40% of the container */
+      width: auto;                    /* Width based on the content */
+      float: left;                    /* Float the bubble to the left */
+      margin-right: 10px;             /* Optional: Adds space between messages */
+      clear: both;                    /* Prevent overlap with the other message */
+    }
+
+    .chat-input {
+      display: flex;
+      border-top: 1px solid #ddd;
+      padding: 10px;
+      background-color: #fff;
+    }
+
+    .chat-input input {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+
+    .chat-input button {
+      margin-left: 10px;
+      padding: 10px 15px;
+      background-color: #006db5;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .chat-input button:hover {
+      background-color: #006db5;
+    }
+
+    h1, h4 {
+      text-align: center;
+      margin: 10px 0;
+    }
+
+    img {
+      display: block;
+      margin: 0 auto 20px auto;
+    }
+  </style>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+  <!--<h1><b>Mitchell's AI Resume Assistant</b></h1>
+  <h4><b>Please ask questions to learn why you should hire Mitchell!</b></h4>-->
+  <p><img src="static/logo_mara.png" alt="Rezzy" height="210" width="220"></p>
+
+  <div class="chatbot-container">
+    <div class="chat-display" id="chatbox">
+      <div class="message bot">
+        <span>Hi! I'm M.A.R.A., Mitchell's AI Resume Assistant. Please ask me anything to learn more about Mitchell.</span>
+      </div>
+    </div>
+    <div class="chat-input" id="userInput">
+      <input id="textInput" type="text" name="msg" placeholder="Ask anything about Mitchell (e.g. job experience, skills, hobbies)">
+      <button onclick="getBotResponse()">Send</button>
+    </div>
+  </div>
+
+  <script>
+    function getBotResponse() {
+      const rawText = $("#textInput").val();
+      if (rawText.trim() === "") return;
+
+      const userHtml = '<div class="message user"><span>' + rawText + '</span></div>';
+      $("#textInput").val("");
+      $("#chatbox").append(userHtml);
+
+      $.get("/get", { msg: rawText }).done(function (data) {
+        const botHtml = '<div class="message bot"><span>' + data + '</span></div>';
+        $("#chatbox").append(botHtml);
+        const chatbox = document.getElementById("chatbox");
+        chatbox.scrollTop = chatbox.scrollHeight;
+      });
+    }
+
+    $("#textInput").keypress(function (e) {
+      if (e.which === 13) {
+        getBotResponse();
+      }
+    });
+  </script>
+</body>
+</html>
