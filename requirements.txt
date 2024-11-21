@@ -4,4 +4,4 @@ langchain_community==0.3.7
 langchain_openai==0.2.9
 openai==1.55.0
 gunicorn==20.1.0
-chromad==0.5.20
+chromadb==0.5.20
