@@ -23,7 +23,7 @@ conversation_history = []
 
 def get_completion(prompt):
 # Prompt template with conversation history
-    with open("project/src/data/system_message.txt","r") as f:
+    with open("data/system_message.txt","r") as f:
         sysMessageText = f.read()
 
     systemMessage = sysMessageText + """
@@ -43,10 +43,10 @@ def get_completion(prompt):
     )
 
     llm_chain = LLMChain(llm=llm, prompt=prompt_template)
-    loader = DirectoryLoader("project/src/data/", glob="*.txt", loader_cls=TextLoader)
+    loader = DirectoryLoader("data/", glob="*.txt", loader_cls=TextLoader)
     documents = loader.load()
 
-    persist_directory = "project/src/data/persistent_memory_storage"
+    persist_directory = "data/persistent_memory_storage"
     embeddings = OpenAIEmbeddings(api_key=OPENAI_API_KEY)
     vector_store = Chroma.from_documents(documents, embeddings, persist_directory=persist_directory)
 
