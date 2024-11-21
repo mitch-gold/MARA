@@ -46,7 +46,7 @@ def get_completion(prompt):
     loader = DirectoryLoader("data/", glob="*.txt", loader_cls=TextLoader)
     documents = loader.load()
 
-    persist_directory = "/persistent_memory_storage"
+    persist_directory = "/data/persistent_memory_storage"
     embeddings = OpenAIEmbeddings(api_key=OPENAI_API_KEY)
     vector_store = Chroma.from_documents(documents, embeddings, persist_directory=persist_directory)
 
