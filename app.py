@@ -62,7 +62,7 @@ def get_completion(prompt):
 
     # Update conversation history
     conversation_history.append((prompt, response))
-
+    print(response)
     return response
 @app.route("/")
 def home():    
