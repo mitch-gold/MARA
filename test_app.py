@@ -23,12 +23,12 @@ def test_get_bot_response(client):
 
 # Make sure the API key is set from the environment
 openai.api_key = os.getenv("OPENAI_API_KEY")
-
 def test_openai():
-    openai.api_key = os.getenv("OPENAI_API_KEY")
-    response = openai.Completion.create(
-        engine="text-davinci-003",
-        prompt="Hello, world!",
-        max_tokens=5
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": "Hello!"}
+        ]
     )
-    print(response.choices[0].text.strip())
+    print(response['choices'][0]['message']['content'])
