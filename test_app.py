@@ -1,5 +1,5 @@
 import pytest
-import openai
+from openai import OpenAI
 import os
 from app import app  # Import your Flask app
 
@@ -23,11 +23,13 @@ def test_get_bot_response(client):
 
 # Make sure the API key is set from the environment
 def test_openai():
-    client = openai.Client(api_key=os.getenv("OPENAI_API_KEY"))
-    response = client.completions.create(
-        model="gpt-3.5-turbo",
-        messages=[{"role": "system", "content": "You are a helpful assistant."},
-                {"role": "user", "content": "Hello!"}]
-    )
+    client = OpenAI(api_key = os.environ.get('OPENAI_API_KEY'))
 
-    print(response['choices'][0]['message']['content'])
+    response = client.completions.create(
+        model="gpt-3.5-turbo-instruct",
+        prompt="Hello World",
+        max_tokens=7,
+        temperature=0.1
+    )
+    
+    print(response.choices[0].text.strip())
