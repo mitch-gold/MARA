@@ -22,13 +22,12 @@ def test_get_bot_response(client):
     assert b'Hello' in response.data  # Check if the response contains the word 'Hello'
 
 # Make sure the API key is set from the environment
-openai.api_key = os.getenv("OPENAI_API_KEY")
 def test_openai():
-    response = openai.ChatCompletion.create(
+    client = openai.Client(api_key=os.getenv("OPENAI_API_KEY"))
+    response = client.completions.create(
         model="gpt-3.5-turbo",
-        messages=[
-            {"role": "system", "content": "You are a helpful assistant."},
-            {"role": "user", "content": "Hello!"}
-        ]
+        messages=[{"role": "system", "content": "You are a helpful assistant."},
+                {"role": "user", "content": "Hello!"}]
     )
+
     print(response['choices'][0]['message']['content'])
