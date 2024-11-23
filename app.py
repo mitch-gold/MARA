@@ -117,6 +117,7 @@ def get_completion(prompt):
         conversation_history.append((prompt, response))
         print(cb)
         return response
+    
 @app.route("/")
 def home():    
     return render_template("index.html")
