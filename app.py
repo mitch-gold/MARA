@@ -61,11 +61,8 @@ def get_completion(prompt):
         conversation_history = []
 
     # Prepare the system message, allowing for non-existent file for testing purposes
-    try:
-        with open("data/system_message.txt", "r") as f:
-            sysMessageText = f.read()
-    except:
-            sysMessageText = ''
+    with open("data/system_message.txt", "r") as f:
+        sysMessageText = f.read()
 
     systemMessage = sysMessageText + """
     Context: {context}
