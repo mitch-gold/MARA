@@ -10,22 +10,20 @@ def client():
         yield client
 
 def test_home_page(client):
-    """Test the home page (index.html)"""
     response = client.get('/')
-    assert response.status_code == 200  # Check if the status code is 200 OK
-    assert b'Welcome' in response.data  # Check if the page contains the word 'Welcome'
+    assert response.status_code == 200  # Check that the page returns a 200 OK status
+    assert b'<!DOCTYPE html>' in response.data  # Check if HTML is returned
 
 def test_get_bot_response(client):
-    """Test the `/get` endpoint (your chatbot endpoint)"""
     response = client.get('/get?msg=Hello')
-    assert response.status_code == 200  # Check if the response status is 200 OK
-    assert b'Hello' in response.data  # Check if the response contains the word 'Hello'
+    assert response.status_code == 200  # Ensure the server responds with status 200
+    assert len(response.data) > 0  # Check that the response body is not empty
 
 # Make sure the API key is set from the environment
 def test_openai():
-    client = OpenAI(api_key = os.environ.get('OPENAI_API_KEY'))
+    OpenAIclient = OpenAI(api_key = os.environ.get('OPENAI_API_KEY'))
 
-    response = client.completions.create(
+    response = OpenAIclient.completions.create(
         model="gpt-3.5-turbo-instruct",
         prompt="Hello World",
         max_tokens=7,

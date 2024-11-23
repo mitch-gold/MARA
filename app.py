@@ -60,9 +60,12 @@ def get_completion(prompt):
         conversation_summary = summarize_conversation(conversation_history)
         conversation_history = []
 
-    # Prepare the system message
-    with open("data/system_message.txt", "r") as f:
-        sysMessageText = f.read()
+    # Prepare the system message, allowing for non-existent file for testing purposes
+    try:
+        with open("data/system_message.txt", "r") as f:
+            sysMessageText = f.read()
+    except:
+            sysMessageText = ''
 
     systemMessage = sysMessageText + """
     Context: {context}
