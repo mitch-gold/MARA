@@ -23,6 +23,13 @@ jobs:
         python -m pip install --upgrade pip  # Upgrade pip
         pip install -r requirements.txt  # Install project dependencies
 
+    - name: Set up mock data for tests
+      run: |
+        mkdir -p data
+        echo "This is a mock system message" > data/system_message.txt
+        echo "This is a mock example" > data/example.txt
+        mkdir -p data/persistent_memory_storage
+
     - name: Set OpenAI API Key as an Environment Variable
       run: echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> $GITHUB_ENV  # Set the secret as an environment variable
 
