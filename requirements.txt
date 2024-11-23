@@ -5,9 +5,8 @@ langchain_openai==0.2.9
 openai==1.55.0
 gunicorn==20.1.0
 chromadb==0.5.20
-transformers==4.44.0
 torch==2.1.0
 numpy==1.24.0
 transformers==4.44.0
 pytest==8.3.3
-werkzeug==2.1.1
+werkzeug==2.3.3
