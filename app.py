@@ -18,7 +18,6 @@ app = Flask(__name__)
 OPENAI_API_KEY =os.environ.get('OPENAI_API_KEY')
 llm = OpenAI(model='gpt-3.5-turbo-instruct', temperature=0.7, api_key=OPENAI_API_KEY)
 
-# Token counter
 def count_tokens(text, model="gpt-3.5-turbo"):
     encoding = tiktoken.encoding_for_model(model)
     return len(encoding.encode(text))
@@ -61,7 +60,7 @@ def get_completion(prompt):
         conversation_summary = summarize_conversation(conversation_history)
         conversation_history = []
 
-    # Prepare the system message
+    # Prepare the system message, allowing for non-existent file for testing purposes
     with open("data/system_message.txt", "r") as f:
         sysMessageText = f.read()
 
@@ -117,6 +116,7 @@ def get_completion(prompt):
         conversation_history.append((prompt, response))
         print(cb)
         return response
+    
 @app.route("/")
 def home():    
     return render_template("index.html")
