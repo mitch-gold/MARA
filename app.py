@@ -114,6 +114,7 @@ def get_completion(prompt):
         })["text"]
 
         conversation_history.append((prompt, response))
+        print(prompt)
         print(cb)
         return response
     
