@@ -11,36 +11,41 @@ from langchain_community.embeddings.openai import OpenAIEmbeddings
 from transformers import pipeline
 from langchain_community.callbacks import get_openai_callback
 from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.docstore.document import Document
 import tiktoken
+import json
+from funcs.doc_processing import load_json_to_documents, create_vector_store
+from funcs.limit_tokens import count_tokens, truncate_text
+
+### IGNORING THESE FOR NOW ###
+import warnings
+# Suppress LangChainDeprecationWarning
+warnings.filterwarnings("ignore", category=DeprecationWarning, module="langchain")
+warnings.filterwarnings("ignore", category=DeprecationWarning, module="langchain_community")
+### ###
 
 app = Flask(__name__)
 
-OPENAI_API_KEY =os.environ.get('OPENAI_API_KEY')
+OPENAI_API_KEY=os.environ.get('OPENAI_API_KEY')
 llm = OpenAI(model='gpt-3.5-turbo-instruct', temperature=0.7, api_key=OPENAI_API_KEY)
 
-def count_tokens(text, model="gpt-3.5-turbo"):
-    encoding = tiktoken.encoding_for_model(model)
-    return len(encoding.encode(text))
+#TOKEN SET UP
+MAX_TOKENS = 4096
+RESPONSE_TOKENS = 500
+INPUT_TOKENS_LIMIT = MAX_TOKENS - RESPONSE_TOKENS
 
-# Truncate text to fit within the token limit
-def truncate_text(text, max_tokens, model="gpt-3.5-turbo"):
-    encoding = tiktoken.encoding_for_model(model)
-    tokens = encoding.encode(text)
-    if len(tokens) > max_tokens:
-        tokens = tokens[:max_tokens]
-    return encoding.decode(tokens)
+# File paths
+json_file = "data/mitchell.json"
+persist_directory = "data/persistent_memory_storage"
 
-def preprocess_documents(directory):
-    loader = DirectoryLoader(directory, glob="*.txt", loader_cls=TextLoader)
-    documents = loader.load()
-    splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
-    split_docs = splitter.split_documents(documents)
-    return split_docs
+# Load documents and create vector store
+documents = load_json_to_documents(json_file)  # Load documents from JSON file
+vector_store = create_vector_store(documents, persist_directory)  # Create Chroma vector store
+
 
 # Global variable for conversation history
 conversation_history = []
 conversation_summary = ""
-
 
 summarizer = pipeline("summarization", model="t5-small")
 
@@ -55,10 +60,9 @@ def summarize_conversation(conversation_history):
 def get_completion(prompt):
     global conversation_history, conversation_summary
 
-    # Check if we need to summarize the conversation
+    conversation_summary = summarize_conversation(conversation_history) #conversation_summary will always only use the last 3 exchances
     if len(conversation_history) >= 3:
-        conversation_summary = summarize_conversation(conversation_history)
-        conversation_history = []
+        conversation_history = conversation_history[-3:]
 
     # Prepare the system message, allowing for non-existent file for testing purposes
     with open("data/system_message.txt", "r") as f:
@@ -81,25 +85,20 @@ def get_completion(prompt):
         template=systemMessage,
     )
 
-    # Load documents for context
-    documents = preprocess_documents("data/")
-
-    persist_directory = "data/persistent_memory_storage"
-    embeddings = OpenAIEmbeddings(api_key=OPENAI_API_KEY)
-    vector_store = Chroma.from_documents(documents, embeddings, persist_directory=persist_directory)
-
+    #not currently using conversation history context in the prompt because it influences the answers too much
+    #prompt_w_context = f"Conversation History:\n{conversation_summary}\n\nUser's Current Question:\n{prompt}" #grab docs related to current prompt + using recent conversation for more context
+    
     # Retrieve relevant context from documents
-    docs = vector_store.similarity_search(prompt, k=3)
-    context = "\n\n".join([doc.page_content for doc in docs])
+    print('-------------')
+    docs = vector_store.similarity_search_with_relevance_scores(prompt, k=3)
+    print('document relevance score: ' + str(docs[0][1]))
+    context = "\n---\n".join([doc.page_content for doc, _score in docs])
+    print("doc used: \n ---" + str(docs[0][0]) + "\n ---")
 
     # Count and truncate tokens
     context_tokens = count_tokens(context)
     summary_tokens = count_tokens(conversation_summary)
     prompt_tokens = count_tokens(prompt)
-
-    MAX_TOKENS = 4096
-    RESPONSE_TOKENS = 500
-    INPUT_TOKENS_LIMIT = MAX_TOKENS - RESPONSE_TOKENS
 
     if context_tokens + summary_tokens + prompt_tokens > INPUT_TOKENS_LIMIT:
         context = truncate_text(context, max_tokens=INPUT_TOKENS_LIMIT - (summary_tokens + prompt_tokens))
@@ -114,8 +113,10 @@ def get_completion(prompt):
         })["text"]
 
         conversation_history.append((prompt, response))
-        print(prompt)
+        print("Prompt: " + prompt)
+        print('recent convo hist: \n ---' + conversation_summary + '\n ---')
         print(cb)
+        print('\n-------------')
         return response
     
 @app.route("/")

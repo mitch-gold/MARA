@@ -5,3 +5,4 @@
 *.pub
 new_ed25519_key
 private_key
+*/*.json
