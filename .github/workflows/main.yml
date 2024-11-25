@@ -39,7 +39,7 @@ jobs:
             "age": 99,
             "location": "Nowhere",
             "contact": {
-              "email": "email@email.com",
+              "email": "email@email.com"
             }
           }
         }' > data/mitchell.json
