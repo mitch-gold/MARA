@@ -30,6 +30,20 @@ jobs:
         echo "This is a mock example" > data/example.txt
         mkdir -p data/persistent_memory_storage
 
+    - name: Create test JSON file
+      run: |
+        mkdir -p data  # Create the directory if it doesn't exist
+        echo '{
+          "person": {
+            "name": "Joe Smith",
+            "age": 99,
+            "location": "Nowhere",
+            "contact": {
+              "email": "email@email.com",
+            }
+          }
+        }' > data/mitchell.json
+
     - name: Set OpenAI API Key as an Environment Variable
       run: echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> $GITHUB_ENV  # Set the secret as an environment variable
 
