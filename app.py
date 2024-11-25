@@ -24,7 +24,6 @@ warnings.filterwarnings("ignore", category=DeprecationWarning, module="langchain
 warnings.filterwarnings("ignore", category=DeprecationWarning, module="langchain_community")
 ### ###
 
-
 app = Flask(__name__)
 
 OPENAI_API_KEY=os.environ.get('OPENAI_API_KEY')
