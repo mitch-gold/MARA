@@ -48,7 +48,6 @@ vector_store = create_vector_store(documents, persist_directory)  # Create Chrom
 conversation_history = []
 conversation_summary = ""
 
-
 summarizer = pipeline("summarization", model="t5-small")
 
 # Function to summarize conversation history
