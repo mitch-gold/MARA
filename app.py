@@ -35,8 +35,8 @@ RESPONSE_TOKENS = 500
 INPUT_TOKENS_LIMIT = MAX_TOKENS - RESPONSE_TOKENS
 
 # File paths
-json_file = "data/mitchell.json"
-persist_directory = "data/persistent_memory_storage"
+json_file = "var/data/mitchell.json"
+persist_directory = "var/data/persistent_memory_storage"
 
 # Load documents and create vector store
 documents = load_json_to_documents(json_file)  # Load documents from JSON file
@@ -66,7 +66,7 @@ def get_completion(prompt):
 
     # Prepare the system message, allowing for non-existent file for testing purposes
     try:
-        with open("data/system_message.txt", "r") as f:
+        with open("var/data/system_message.txt", "r") as f:
             sysMessageText = f.read()
     except:
         sysMessageText = '' #if no file is available upon deployment
