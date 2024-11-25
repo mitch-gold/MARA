@@ -65,8 +65,11 @@ def get_completion(prompt):
         conversation_history = conversation_history[-3:]
 
     # Prepare the system message, allowing for non-existent file for testing purposes
-    with open("data/system_message.txt", "r") as f:
-        sysMessageText = f.read()
+    try:
+        with open("data/system_message.txt", "r") as f:
+            sysMessageText = f.read()
+    except:
+        sysMessageText = '' #if no file is available upon deployment
 
     systemMessage = sysMessageText + """
     Context: {context}
