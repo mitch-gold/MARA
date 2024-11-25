@@ -12,7 +12,16 @@ def load_json_to_documents(file_path):
         with open(file_path, "r") as f:
             json_data = json.load(f)
     except:
-        json_data = {}
+        json_data = {
+          "person": {
+            "name": "Joe Smith",
+            "age": 99,
+            "location": "Nowhere",
+            "contact": {
+              "email": "email@email.com"
+            }
+          }
+        }
     documents = []
     
     # Handle the top-level keys like 'person', 'work_experience', 'education', etc.
