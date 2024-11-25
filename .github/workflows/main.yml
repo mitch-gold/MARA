@@ -43,11 +43,9 @@ jobs:
           }
         }' > data/mitchell.json
 
-    - name: Set OpenAI API Key as an Environment Variable
-      run: echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> $GITHUB_ENV  # Set the secret as an environment variable
-
     - name: Run tests with pytest
       env:
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}  # Pass the secret to the pytest step
+        session_key: ${{ secrets.session_key }}
       run: |
         pytest  # Run the tests
