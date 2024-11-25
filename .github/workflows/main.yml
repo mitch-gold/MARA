@@ -25,14 +25,13 @@ jobs:
 
     - name: Set up mock data for tests
       run: |
-        mkdir -p var/data
-        echo "This is a mock system message" > var/data/system_message.txt
-        echo "This is a mock example" > var/data/example.txt
-        mkdir -p var/data/persistent_memory_storage
+        mkdir data
+        echo "This is a mock system message" > data/system_message.txt
+        echo "This is a mock example" > data/example.txt
+        mkdir data/persistent_memory_storage
 
     - name: Create test JSON file
       run: |
-        mkdir -p data  # Create the directory if it doesn't exist
         echo '{
           "person": {
             "name": "Joe Smith",
@@ -42,7 +41,7 @@ jobs:
               "email": "email@email.com"
             }
           }
-        }' > var/data/mitchell.json
+        }' > data/mitchell.json
 
     - name: Set OpenAI API Key as an Environment Variable
       run: echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> $GITHUB_ENV  # Set the secret as an environment variable
