@@ -8,9 +8,11 @@ OPENAI_API_KEY=os.environ.get('OPENAI_API_KEY')
 
 def load_json_to_documents(file_path):
     # Load JSON file
-    with open(file_path, "r") as f:
-        json_data = json.load(f)
-
+    try:
+        with open(file_path, "r") as f:
+            json_data = json.load(f)
+    except:
+        json_data = {}
     documents = []
     
     # Handle the top-level keys like 'person', 'work_experience', 'education', etc.
