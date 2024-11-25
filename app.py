@@ -1,6 +1,6 @@
 #Final app.py 
 #import files
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, session
 import os 
 from langchain_openai import OpenAI
 from langchain.chains import LLMChain
@@ -19,12 +19,12 @@ from funcs.limit_tokens import count_tokens, truncate_text
 
 ### IGNORING THESE FOR NOW ###
 import warnings
-# Suppress LangChainDeprecationWarning
 warnings.filterwarnings("ignore", category=DeprecationWarning, module="langchain")
 warnings.filterwarnings("ignore", category=DeprecationWarning, module="langchain_community")
 ### ###
 
 app = Flask(__name__)
+app.secret_key = os.environ.get('session_key')
 
 OPENAI_API_KEY=os.environ.get('OPENAI_API_KEY')
 llm = OpenAI(model='gpt-3.5-turbo-instruct', temperature=0.7, api_key=OPENAI_API_KEY)
@@ -42,11 +42,6 @@ persist_directory = "data/persistent_memory_storage"
 documents = load_json_to_documents(json_file)  # Load documents from JSON file
 vector_store = create_vector_store(documents, persist_directory)  # Create Chroma vector store
 
-
-# Global variable for conversation history
-conversation_history = []
-conversation_summary = ""
-
 summarizer = pipeline("summarization", model="t5-small")
 
 # Function to summarize conversation history
@@ -58,11 +53,14 @@ def summarize_conversation(conversation_history):
 
 # Function to handle the conversation completion
 def get_completion(prompt):
-    global conversation_history, conversation_summary
+    session["conversation_history"] = session.get("conversation_history", [])
+    session["conversation_summary"] = session.get("conversation_summary", "")
 
-    conversation_summary = summarize_conversation(conversation_history) #conversation_summary will always only use the last 3 exchances
-    if len(conversation_history) >= 3:
-        conversation_history = conversation_history[-3:]
+    #conversation_summary will always only use the last 3 exchances
+    if len(session["conversation_history"]) >= 3:
+        session["conversation_history"] = session["conversation_history"][-3:]
+    
+    session["conversation_summary"] = summarize_conversation(session["conversation_history"]) 
 
     # Prepare the system message, allowing for non-existent file for testing purposes
     try:
@@ -88,9 +86,6 @@ def get_completion(prompt):
         template=systemMessage,
     )
 
-    #not currently using conversation history context in the prompt because it influences the answers too much
-    #prompt_w_context = f"Conversation History:\n{conversation_summary}\n\nUser's Current Question:\n{prompt}" #grab docs related to current prompt + using recent conversation for more context
-    
     # Retrieve relevant context from documents
     print('-------------')
     docs = vector_store.similarity_search_with_relevance_scores(prompt, k=3)
@@ -100,7 +95,7 @@ def get_completion(prompt):
 
     # Count and truncate tokens
     context_tokens = count_tokens(context)
-    summary_tokens = count_tokens(conversation_summary)
+    summary_tokens = count_tokens(session["conversation_summary"])
     prompt_tokens = count_tokens(prompt)
 
     if context_tokens + summary_tokens + prompt_tokens > INPUT_TOKENS_LIMIT:
@@ -111,13 +106,14 @@ def get_completion(prompt):
     with get_openai_callback() as cb:
         response = llm_chain.invoke({
             "context": context,
-            "summary": conversation_summary,
+            "summary": session["conversation_summary"],
             "prompt": prompt
         })["text"]
 
-        conversation_history.append((prompt, response))
+        session['conversation_history'].append((prompt, response))
+
         print("Prompt: " + prompt)
-        print('recent convo hist: \n ---' + conversation_summary + '\n ---')
+        print('recent convo hist: \n ---' + session["conversation_summary"] + '\n ---')
         print(cb)
         print('\n-------------')
         return response
