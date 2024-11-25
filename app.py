@@ -91,7 +91,7 @@ def get_completion(prompt):
     docs = vector_store.similarity_search_with_relevance_scores(prompt, k=3)
     print('document relevance score: ' + str(docs[0][1]))
     context = "\n---\n".join([doc.page_content for doc, _score in docs])
-    print("doc used: \n ---" + str(docs[0][0]) + "\n ---")
+    print("--- \ndoc used:" + str(docs[0][0]) + "\n ---")
 
     # Count and truncate tokens
     context_tokens = count_tokens(context)
